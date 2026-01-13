@@ -130,24 +130,30 @@
   </main>
 
   <script>
-    // === Easy edits (update these values) ===
-    const POT_AMOUNT = 1634283;              // number (no $ sign)
-    const POT_UPDATED = "Jan 13, 2026";    // text
-    const NEXT_DATE = "Friday, Jan 17, 2026 • 7:00 PM";
-    const NEXT_LOCATION = "American Legion Post XXX, Rossville, KS";
+async function loadStatus() {
+  const res = await fetch("status.json", { cache: "no-store" });
+  const s = await res.json();
 
-    // === Render ===
-    const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-    document.getElementById("potAmount").textContent = fmt.format(POT_AMOUNT);
-    document.getElementById("potUpdated").textContent = POT_UPDATED;
+  const fmt = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  });
 
-    document.getElementById("nextDrawingDate").textContent = NEXT_DATE;
-    document.getElementById("nextDrawingDate2").textContent = NEXT_DATE;
+  document.getElementById("potAmount").textContent = fmt.format(s.pot_amount);
+  document.getElementById("potUpdated").textContent = s.pot_updated;
 
-    document.getElementById("nextDrawingLocation").textContent = NEXT_LOCATION;
-    document.getElementById("nextDrawingLocation2").textContent = NEXT_LOCATION;
+  document.getElementById("nextDrawingDate").textContent = s.next_date;
+  document.getElementById("nextDrawingDate2").textContent = s.next_date;
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+  document.getElementById("nextDrawingLocation").textContent = s.next_location;
+  document.getElementById("nextDrawingLocation2").textContent = s.next_location;
+
+  document.querySelector(".board-image").src = s.board_image || "board.jpg";
+}
+
+loadStatus();
+</script>
 </body>
+
 </html>
