@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Queen of Hearts Fundraiser | Sons of the American Legion</title>
+  <meta name="description" content="Queen of Hearts fundraiser supporting U.S. military veterans through the Sons of the American Legion." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="container">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">★</div>
+        <div>
+          <div class="eyebrow">Sons of the American Legion</div>
+          <h1 class="title">Queen of Hearts Fundraising Game</h1>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="#board">Game Board</a>
+        <a href="#details">Next Drawing</a>
+        <a class="button small" href="rules.html">Rules</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-card">
+        <p class="hero-lead">
+          Supporting U.S. military veterans through local programs and community service.
+        </p>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Current Pot</div>
+            <div class="stat-value" id="potAmount">$0</div>
+            <div class="stat-sub">Updated: <span id="potUpdated">—</span></div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Next Drawing</div>
+            <div class="stat-value" id="nextDrawingDate">TBD</div>
+            <div class="stat-sub" id="nextDrawingLocation">Location TBD</div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <a class="button" href="#board">View Current Board</a>
+          <a class="button ghost" href="rules.html">Read the Rules</a>
+        </div>
+      </div>
+
+      <div class="hero-aside">
+        <div class="card">
+          <h2 class="card-title">Where the proceeds go</h2>
+          <p class="muted">
+            Proceeds support veteran-focused programs and services, including assistance for veterans and families,
+            community support initiatives, and American Legion–related charitable efforts.
+          </p>
+          <p class="muted">
+            Want to learn more about the Sons of the American Legion? Visit the national organization for background and mission.
+          </p>
+          <!-- Replace with your preferred link (national SAL page, local post page, etc.) -->
+          <a class="link" href="#" target="_blank" rel="noopener">Learn more about SAL →</a>
+        </div>
+
+        <div class="card subtle">
+          <h2 class="card-title">Quick Notes</h2>
+          <ul class="bullets">
+            <li>Bring your ticket/entry details to the drawing.</li>
+            <li>Winners and rules are determined by the posted game rules.</li>
+            <li>Please check back after each drawing for updates.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOARD -->
+    <section id="board" class="section">
+      <div class="section-head">
+        <h2>Current Game Board</h2>
+        <p class="muted">Latest posted board image for the current game.</p>
+      </div>
+
+      <div class="board-wrap">
+        <!-- Put your current board image in the same folder and name it board.jpg (or change this filename). -->
+        <img class="board-image" src="board.jpg" alt="Queen of Hearts game board" />
+      </div>
+    </section>
+
+    <!-- DETAILS -->
+    <section id="details" class="section">
+      <div class="section-head">
+        <h2>Next Drawing Details</h2>
+        <p class="muted">Confirmed time and place for the next draw.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="card-title">Date & Time</h3>
+          <p class="big" id="nextDrawingDate2">TBD</p>
+          <p class="muted">Please arrive a little early if you’d like to attend in person.</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Location</h3>
+          <p class="big" id="nextDrawingLocation2">Location TBD</p>
+          <p class="muted">Contact your local SAL organizers if you need directions.</p>
+        </div>
+      </div>
+
+      <div class="notice">
+        <strong>Rules:</strong> Please review the <a href="rules.html">official game rules</a> for eligibility, payout, and drawing procedures.
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="muted">© <span id="year"></span> Sons of the American Legion • Queen of Hearts</div>
+        <div class="muted small">This site is informational for the fundraiser; see rules for official terms.</div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // === Easy edits (update these values) ===
+    const POT_AMOUNT = 1634283;              // number (no $ sign)
+    const POT_UPDATED = "Jan 13, 2026";    // text
+    const NEXT_DATE = "Friday, Jan 17, 2026 • 7:00 PM";
+    const NEXT_LOCATION = "American Legion Post XXX, Rossville, KS";
+
+    // === Render ===
+    const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    document.getElementById("potAmount").textContent = fmt.format(POT_AMOUNT);
+    document.getElementById("potUpdated").textContent = POT_UPDATED;
+
+    document.getElementById("nextDrawingDate").textContent = NEXT_DATE;
+    document.getElementById("nextDrawingDate2").textContent = NEXT_DATE;
+
+    document.getElementById("nextDrawingLocation").textContent = NEXT_LOCATION;
+    document.getElementById("nextDrawingLocation2").textContent = NEXT_LOCATION;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
