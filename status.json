@@ -3,5 +3,5 @@
   "pot_updated": "Jan 11, 2026",
   "next_date": "To be determined",
   "next_location": "To be determined",
-  "board_image": "board.jpg"
+  "board_image_url": "https://drive.google.com/uc?id={{File ID from Upload File step}}"
 }
