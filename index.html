@@ -129,12 +129,19 @@
     </footer>
   </main>
 
+<div id="debugStatus" style="font-family: monospace; font-size: 12px; opacity: 0.75; padding: 8px;">
+  debug: (loading…)
+</div>
+  
   <script>
 (async function () {
   try {
     const res = await fetch("status.json", { cache: "no-store" });
     const s = await res.json();
 
+    document.getElementById("debugStatus").textContent =
+  "status.json board_image_url = " + (s.board_image_url || "(missing)");
+    
     // Update the board image with retry + cache-bust
     const img = document.querySelector(".board-image");
     const fallbackSrc = "board.jpg";
@@ -202,4 +209,5 @@
 </body>
 
 </html>
+
 
