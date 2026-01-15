@@ -154,6 +154,16 @@ async function loadStatus() {
 
 loadStatus();
 </script>
+<script>
+  fetch("status.json", { cache: "no-store" })
+    .then(r => r.json())
+    .then(s => {
+      if (s.board_image_url) {
+        document.querySelector(".board-image").src = s.board_image_url;
+      }
+    })
+    .catch(err => console.error("status.json load failed:", err));
+</script>
 </body>
 
 </html>
