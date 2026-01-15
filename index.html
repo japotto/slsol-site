@@ -130,40 +130,76 @@
   </main>
 
   <script>
-async function loadStatus() {
-  const res = await fetch("status.json", { cache: "no-store" });
-  const s = await res.json();
+(async function () {
+  try {
+    const res = await fetch("status.json", { cache: "no-store" });
+    const s = await res.json();
 
-  const fmt = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0
-  });
+    // Update the board image with retry + cache-bust
+    const img = document.querySelector(".board-image");
+    const fallbackSrc = "board.jpg";
 
-  document.getElementById("potAmount").textContent = fmt.format(s.pot_amount);
-  document.getElementById("potUpdated").textContent = s.pot_updated;
+    function setFallback() {
+      if (img) img.src = fallbackSrc;
+    }
 
-  document.getElementById("nextDrawingDate").textContent = s.next_date;
-  document.getElementById("nextDrawingDate2").textContent = s.next_date;
+    async function tryLoad(url, attempts = 3) {
+      for (let i = 0; i < attempts; i++) {
+        const bust = (url.includes("?") ? "&" : "?") + "v=" + Date.now() + "-" + i;
+        const testUrl = url + bust;
 
-  document.getElementById("nextDrawingLocation").textContent = s.next_location;
-  document.getElementById("nextDrawingLocation2").textContent = s.next_location;
+        const ok = await new Promise((resolve) => {
+          const probe = new Image();
+          probe.onload = () => resolve(true);
+          probe.onerror = () => resolve(false);
+          probe.src = testUrl;
+        });
 
-  document.querySelector(".board-image").src = s.board_image || "board.jpg";
-}
+        if (ok) {
+          if (img) img.src = testUrl;
+          return true;
+        }
 
-loadStatus();
-</script>
-<script>
-  fetch("status.json", { cache: "no-store" })
-    .then(r => r.json())
-    .then(s => {
-      if (s.board_image_url) {
-        document.querySelector(".board-image").src = s.board_image_url;
+        // small delay before retry
+        await new Promise(r => setTimeout(r, 250));
       }
-    })
-    .catch(err => console.error("status.json load failed:", err));
+      return false;
+    }
+
+    if (img && s.board_image_url) {
+      const success = await tryLoad(s.board_image_url, 3);
+      if (!success) setFallback();
+    } else {
+      setFallback();
+    }
+
+    // Optional: update text if you have these IDs
+    const potEl = document.getElementById("potAmount");
+    if (potEl && typeof s.pot_amount === "number") {
+      potEl.textContent = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      }).format(s.pot_amount);
+    }
+
+    const updEl = document.getElementById("potUpdated");
+    if (updEl && s.pot_updated) updEl.textContent = s.pot_updated;
+
+    const ndEl = document.getElementById("nextDrawingDate");
+    if (ndEl && s.next_date) ndEl.textContent = s.next_date;
+
+    const nlEl = document.getElementById("nextDrawingLocation");
+    if (nlEl && s.next_location) nlEl.textContent = s.next_location;
+
+  } catch (err) {
+    console.error("Failed to load status.json:", err);
+    const img = document.querySelector(".board-image");
+    if (img) img.src = "board.jpg";
+  }
+})();
 </script>
 </body>
 
 </html>
+
