@@ -264,8 +264,7 @@ a{ color:inherit; }
   display:block;
   width:100%;
   height:auto;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.10);
+  object-fit:contain;
 }
 
 .grid-2{
@@ -315,4 +314,5 @@ a{ color:inherit; }
   .stats{ grid-template-columns: 1fr; }
   .grid-2{ grid-template-columns: 1fr; }
   .title{ font-size:1.05rem; }
+
 }
