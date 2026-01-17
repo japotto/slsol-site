@@ -136,9 +136,12 @@
   <script>
 (async function () {
   try {
+    document.getElementById("year").textContent = new Date().getFullYear();
+
     const res = await fetch("status.json", { cache: "no-store" });
     const s = await res.json();
 
+    console.log("board_image_url from status.json:", s.board_image_url);
     document.getElementById("debugStatus").textContent =
   "status.json board_image_url = " + (s.board_image_url || "(missing)");
     
@@ -167,7 +170,6 @@
           return true;
         }
 
-        // small delay before retry
         await new Promise(r => setTimeout(r, 250));
       }
       return false;
@@ -180,7 +182,7 @@
       setFallback();
     }
 
-    // Optional: update text if you have these IDs
+    // Update text fields
     const potEl = document.getElementById("potAmount");
     if (potEl && typeof s.pot_amount === "number") {
       potEl.textContent = new Intl.NumberFormat("en-US", {
@@ -198,6 +200,12 @@
 
     const nlEl = document.getElementById("nextDrawingLocation");
     if (nlEl && s.next_location) nlEl.textContent = s.next_location;
+
+    const ndEl2 = document.getElementById("nextDrawingDate2");
+    if (ndEl2 && s.next_date) ndEl2.textContent = s.next_date;
+
+    const nlEl2 = document.getElementById("nextDrawingLocation2");
+    if (nlEl2 && s.next_location) nlEl2.textContent = s.next_location;
 
   } catch (err) {
     console.error("Failed to load status.json:", err);
