@@ -136,15 +136,17 @@
   <script>
 (async function () {
   try {
-    document.getElementById("year").textContent = new Date().getFullYear();
+    const yearEl = document.getElementById("year");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 
     const res = await fetch("status.json", { cache: "no-store" });
     const s = await res.json();
 
     console.log("board_image_url from status.json:", s.board_image_url);
-    document.getElementById("debugStatus").textContent =
-  "status.json board_image_url = " + (s.board_image_url || "(missing)");
-    
+    const dbg = document.getElementById("debugStatus");
+    if (dbg) dbg.textContent =
+      "status.json board_image_url = " + (s.board_image_url || "(missing)");
+
     // Update the board image with retry + cache-bust
     const img = document.querySelector(".board-image");
     const fallbackSrc = "board.jpg";
@@ -217,5 +219,6 @@
 </body>
 
 </html>
+
 
 
