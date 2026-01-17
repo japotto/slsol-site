@@ -129,6 +129,10 @@
     </footer>
   </main>
 
+<div id="debugStatus" style="font-family: monospace; font-size: 12px; opacity: 0.75; padding: 8px;">
+  debug: (loading…)
+</div>
+  
   <script>
 (async function () {
   try {
@@ -138,6 +142,8 @@
     const s = await res.json();
 
     console.log("board_image_url from status.json:", s.board_image_url);
+    document.getElementById("debugStatus").textContent =
+  "status.json board_image_url = " + (s.board_image_url || "(missing)");
     
     // Update the board image with retry + cache-bust
     const img = document.querySelector(".board-image");
