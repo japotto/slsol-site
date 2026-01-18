@@ -169,6 +169,7 @@
 
         if (ok) {
           if (img) img.src = testUrl;
+          console.log("Image loaded OK:", testUrl);
           return true;
         }
 
@@ -189,11 +190,14 @@
     return url;
 }
 
+console.log("Using image URL:", s.board_image_url);
+    
 if (img && s.board_image_url) {
   const url = normalizeDriveUrl(s.board_image_url);
   const success = await tryLoad(url, 3);
   if (!success) setFallback();
 } else {
+  console.warn("Image failed to load after retries, using fallback.");
   setFallback();
 }
 
@@ -232,6 +236,7 @@ if (img && s.board_image_url) {
 </body>
 
 </html>
+
 
 
 
