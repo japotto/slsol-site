@@ -24,16 +24,16 @@ body{
   overflow-x:hidden;
 }
 
-/* Hide dynamic content until status.json loads */
 body.loading .board-wrap,
-body.loading .stats,
-body.loading #potAmount,
-body.loading #potUpdated,
-body.loading #nextDrawingDate,
-body.loading #nextDrawingLocation,
-body.loading #nextDrawingDate2,
-body.loading #nextDrawingLocation2 {
-  visibility: hidden;
+body.loading .stats {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body:not(.loading) .board-wrap,
+body:not(.loading) .stats {
+  opacity: 1;
+  transition: opacity 180ms ease;
 }
 
 body.loading .loading-note {
@@ -339,5 +339,6 @@ a{ color:inherit; }
   .title{ font-size:1.05rem; }
 
 }
+
 
 
