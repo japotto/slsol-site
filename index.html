@@ -177,12 +177,25 @@
       return false;
     }
 
-    if (img && s.board_image_url) {
-      const success = await tryLoad(s.board_image_url, 3);
-      if (!success) setFallback();
-    } else {
-      setFallback();
+    function normalizeDriveUrl(url) {
+    // If already usercontent, keep it
+    if (url.includes("drive.usercontent.google.com")) return url;
+
+    // Convert drive.google.com/uc?id=FILE_ID to usercontent form
+    const m = url.match(/[?&]id=([^&]+)/);
+    if (m && m[1]) {
+      return "https://drive.usercontent.google.com/download?id=" + m[1] + "&export=view";
     }
+    return url;
+}
+
+if (img && s.board_image_url) {
+  const url = normalizeDriveUrl(s.board_image_url);
+  const success = await tryLoad(url, 3);
+  if (!success) setFallback();
+} else {
+  setFallback();
+}
 
     // Update text fields
     const potEl = document.getElementById("potAmount");
@@ -219,6 +232,7 @@
 </body>
 
 </html>
+
 
 
 
