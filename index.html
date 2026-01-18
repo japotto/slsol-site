@@ -136,18 +136,21 @@
   <script>
 (async function () {
   try {
+    // Year
     const yearEl = document.getElementById("year");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+    // Load status.json (no cache)
     const res = await fetch("status.json", { cache: "no-store" });
     const s = await res.json();
 
-    console.log("board_image_url from status.json:", s.board_image_url);
+    // Basic debug line (page + console)
+    console.log("[QOH] board_image_url from status.json:", s.board_image_url);
     const dbg = document.getElementById("debugStatus");
     if (dbg) dbg.textContent =
       "status.json board_image_url = " + (s.board_image_url || "(missing)");
 
-    // Update the board image with retry + cache-bust
+    // Image element + fallback
     const img = document.querySelector(".board-image");
     const fallbackSrc = "board.jpg";
 
@@ -155,10 +158,30 @@
       if (img) img.src = fallbackSrc;
     }
 
-    async function tryLoad(url, attempts = 3) {
+    function extractDriveId(url) {
+      const m = url && url.match(/[?&]id=([^&]+)/);
+      return m && m[1] ? m[1] : null;
+    }
+
+    function buildDriveUrls(originalUrl) {
+      const id = extractDriveId(originalUrl);
+      if (!id) return { originalUrl, id: null, candidates: [originalUrl] };
+
+      const candidates = [
+        `https://drive.google.com/uc?id=${id}`,
+        `https://drive.usercontent.google.com/download?id=${id}&export=view`,
+        `https://lh3.googleusercontent.com/d/${id}`,
+      ];
+
+      return { originalUrl, id, candidates };
+    }
+
+    async function tryLoad(url, attempts = 2) {
       for (let i = 0; i < attempts; i++) {
         const bust = (url.includes("?") ? "&" : "?") + "v=" + Date.now() + "-" + i;
         const testUrl = url + bust;
+
+        console.log(`[QOH] tryLoad attempt ${i + 1}/${attempts}:`, testUrl);
 
         const ok = await new Promise((resolve) => {
           const probe = new Image();
@@ -167,10 +190,11 @@
           probe.src = testUrl;
         });
 
+        console.log(`[QOH] tryLoad result attempt ${i + 1}:`, ok ? "OK" : "FAIL");
+
         if (ok) {
-          if (img) img.src = testUrl;
-          // Simple test change.
-          console.log("Image loaded OK:", testUrl);
+          img.src = testUrl;
+          console.log("[QOH] Set <img> src to:", img.src);
           return true;
         }
 
@@ -179,82 +203,33 @@
       return false;
     }
 
-function extractDriveId(url) {
-  // supports ...uc?id=FILE_ID and ...download?id=FILE_ID
-  const m = url.match(/[?&]id=([^&]+)/);
-  return m && m[1] ? m[1] : null;
-}
+    // ---- Image decision tree ----
+    if (!img) {
+      console.warn("[QOH] .board-image element not found. Falling back.");
+      setFallback();
+    } else if (!s.board_image_url) {
+      console.warn("[QOH] status.json missing board_image_url. Falling back.");
+      setFallback();
+    } else {
+      const { originalUrl, id, candidates } = buildDriveUrls(s.board_image_url);
+      console.log("[QOH] status.json board_image_url:", originalUrl);
+      console.log("[QOH] extracted Drive file id:", id);
+      console.log("[QOH] candidate image URLs:", candidates);
 
-function buildDriveUrls(originalUrl) {
-  const id = extractDriveId(originalUrl);
-  if (!id) return { originalUrl, id: null, candidates: [originalUrl] };
+      let success = false;
+      for (const candidate of candidates) {
+        console.log("[QOH] Trying candidate:", candidate);
+        success = await tryLoad(candidate, 2);
+        if (success) break;
+      }
 
-  // Try multiple "direct" variants; one usually works best depending on browser/policies
-  const candidates = [
-    // Google Drive "uc"
-    `https://drive.google.com/uc?id=${id}`,
-    // Googleusercontent direct delivery
-    `https://drive.usercontent.google.com/download?id=${id}&export=view`,
-    // Another commonly-working direct host
-    `https://lh3.googleusercontent.com/d/${id}`,
-  ];
-
-  return { originalUrl, id, candidates };
-}
-
-async function tryLoad(url, attempts = 3) {
-  for (let i = 0; i < attempts; i++) {
-    const bust = (url.includes("?") ? "&" : "?") + "v=" + Date.now() + "-" + i;
-    const testUrl = url + bust;
-
-    console.log(`[QOH] tryLoad attempt ${i + 1}/${attempts}:`, testUrl);
-
-    const ok = await new Promise((resolve) => {
-      const probe = new Image();
-      probe.onload = () => resolve(true);
-      probe.onerror = () => resolve(false);
-      probe.src = testUrl;
-    });
-
-    console.log(`[QOH] tryLoad result attempt ${i + 1}:`, ok ? "OK" : "FAIL");
-
-    if (ok) {
-      img.src = testUrl;
-      console.log("[QOH] Set <img> src to:", img.src);
-      return true;
+      if (!success) {
+        console.warn("[QOH] All candidates failed. Falling back to board.jpg");
+        setFallback();
+      }
     }
 
-    await new Promise(r => setTimeout(r, 250));
-  }
-  return false;
-}
-
-if (!img) {
-  console.warn("[QOH] .board-image element not found. Falling back.");
-  setFallback();
-} else if (!s.board_image_url) {
-  console.warn("[QOH] status.json missing board_image_url. Falling back.");
-  setFallback();
-} else {
-  const { originalUrl, id, candidates } = buildDriveUrls(s.board_image_url);
-  console.log("[QOH] status.json board_image_url:", originalUrl);
-  console.log("[QOH] extracted Drive file id:", id);
-  console.log("[QOH] candidate image URLs:", candidates);
-
-  let success = false;
-  for (const candidate of candidates) {
-    console.log("[QOH] Trying candidate:", candidate);
-    success = await tryLoad(candidate, 2);
-    if (success) break;
-  }
-
-  if (!success) {
-    console.warn("[QOH] All candidates failed. Falling back to board.jpg");
-    setFallback();
-  }
-}
-
-    // Update text fields
+    // ---- Text updates ----
     const potEl = document.getElementById("potAmount");
     if (potEl && typeof s.pot_amount === "number") {
       potEl.textContent = new Intl.NumberFormat("en-US", {
@@ -280,7 +255,7 @@ if (!img) {
     if (nlEl2 && s.next_location) nlEl2.textContent = s.next_location;
 
   } catch (err) {
-    console.error("Failed to load status.json:", err);
+    console.error("[QOH] Failed to load status.json or update page:", err);
     const img = document.querySelector(".board-image");
     if (img) img.src = "board.jpg";
   }
@@ -289,6 +264,7 @@ if (!img) {
 </body>
 
 </html>
+
 
 
 
