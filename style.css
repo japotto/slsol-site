@@ -24,6 +24,29 @@ body{
   overflow-x:hidden;
 }
 
+/* Hide dynamic content until status.json loads */
+body.loading .board-wrap,
+body.loading .stats,
+body.loading #potAmount,
+body.loading #potUpdated,
+body.loading #nextDrawingDate,
+body.loading #nextDrawingLocation,
+body.loading #nextDrawingDate2,
+body.loading #nextDrawingLocation2 {
+  visibility: hidden;
+}
+
+body.loading .loading-note {
+  display: block;
+}
+
+.loading-note {
+  display: none;
+  margin-top: 12px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
 a{ color:inherit; }
 .container{
   width:min(1100px, calc(100% - 2rem));
@@ -316,3 +339,5 @@ a{ color:inherit; }
   .title{ font-size:1.05rem; }
 
 }
+
+

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
+<body class="loading">
   <div class="bg" aria-hidden="true"></div>
 
   <header class="site-header">
@@ -37,6 +37,8 @@
           Supporting U.S. military veterans through local programs and community service.
         </p>
 
+        <div class="loading-note">Loading latest game status…</div>
+        
         <div class="stats">
           <div class="stat">
             <div class="stat-label">Current Pot</div>
@@ -91,7 +93,7 @@
 
       <div class="board-wrap">
         <!-- Put your current board image in the same folder and name it board.jpg (or change this filename). -->
-        <img class="board-image" src="board.jpg" alt="Queen of Hearts game board" />
+        <img class="board-image" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Queen of Hearts game board" />
       </div>
     </section>
 
@@ -143,6 +145,7 @@
     // Load status.json (no cache)
     const res = await fetch("status.json", { cache: "no-store" });
     const s = await res.json();
+    document.body.classList.remove("loading");
 
     // Basic debug line (page + console)
     console.log("[QOH] board_image_url from status.json:", s.board_image_url);
@@ -257,6 +260,7 @@
   } catch (err) {
     console.error("[QOH] Failed to load status.json or update page:", err);
     const img = document.querySelector(".board-image");
+    document.body.classList.remove("loading");
     if (img) img.src = "board.jpg";
   }
 })();
@@ -264,6 +268,7 @@
 </body>
 
 </html>
+
 
 
 
