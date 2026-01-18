@@ -26,8 +26,14 @@ body{
 
 /* Hide dynamic content until status.json loads */
 body.loading .board-wrap,
-body.loading .stats {
-  visibility: hidden;   /* keeps layout from jumping */
+body.loading .stats,
+body.loading #potAmount,
+body.loading #potUpdated,
+body.loading #nextDrawingDate,
+body.loading #nextDrawingLocation,
+body.loading #nextDrawingDate2,
+body.loading #nextDrawingLocation2 {
+  visibility: hidden;
 }
 
 body.loading .loading-note {
@@ -333,4 +339,5 @@ a{ color:inherit; }
   .title{ font-size:1.05rem; }
 
 }
+
 
