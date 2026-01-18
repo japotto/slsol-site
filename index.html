@@ -179,27 +179,79 @@
       return false;
     }
 
-    function normalizeDriveUrl(url) {
-    // If already usercontent, keep it
-    if (url.includes("drive.usercontent.google.com")) return url;
-
-    // Convert drive.google.com/uc?id=FILE_ID to usercontent form
-    const m = url.match(/[?&]id=([^&]+)/);
-    if (m && m[1]) {
-      return "https://drive.usercontent.google.com/download?id=" + m[1] + "&export=view";
-    }
-    return url;
+function extractDriveId(url) {
+  // supports ...uc?id=FILE_ID and ...download?id=FILE_ID
+  const m = url.match(/[?&]id=([^&]+)/);
+  return m && m[1] ? m[1] : null;
 }
 
-console.log("Using image URL:", s.board_image_url);
-    
-if (img && s.board_image_url) {
-  const url = normalizeDriveUrl(s.board_image_url);
-  const success = await tryLoad(url, 3);
-  if (!success) setFallback();
-} else {
-  console.warn("Image failed to load after retries, using fallback.");
+function buildDriveUrls(originalUrl) {
+  const id = extractDriveId(originalUrl);
+  if (!id) return { originalUrl, id: null, candidates: [originalUrl] };
+
+  // Try multiple "direct" variants; one usually works best depending on browser/policies
+  const candidates = [
+    // Google Drive "uc"
+    `https://drive.google.com/uc?id=${id}`,
+    // Googleusercontent direct delivery
+    `https://drive.usercontent.google.com/download?id=${id}&export=view`,
+    // Another commonly-working direct host
+    `https://lh3.googleusercontent.com/d/${id}`,
+  ];
+
+  return { originalUrl, id, candidates };
+}
+
+async function tryLoad(url, attempts = 3) {
+  for (let i = 0; i < attempts; i++) {
+    const bust = (url.includes("?") ? "&" : "?") + "v=" + Date.now() + "-" + i;
+    const testUrl = url + bust;
+
+    console.log(`[QOH] tryLoad attempt ${i + 1}/${attempts}:`, testUrl);
+
+    const ok = await new Promise((resolve) => {
+      const probe = new Image();
+      probe.onload = () => resolve(true);
+      probe.onerror = () => resolve(false);
+      probe.src = testUrl;
+    });
+
+    console.log(`[QOH] tryLoad result attempt ${i + 1}:`, ok ? "OK" : "FAIL");
+
+    if (ok) {
+      img.src = testUrl;
+      console.log("[QOH] Set <img> src to:", img.src);
+      return true;
+    }
+
+    await new Promise(r => setTimeout(r, 250));
+  }
+  return false;
+}
+
+if (!img) {
+  console.warn("[QOH] .board-image element not found. Falling back.");
   setFallback();
+} else if (!s.board_image_url) {
+  console.warn("[QOH] status.json missing board_image_url. Falling back.");
+  setFallback();
+} else {
+  const { originalUrl, id, candidates } = buildDriveUrls(s.board_image_url);
+  console.log("[QOH] status.json board_image_url:", originalUrl);
+  console.log("[QOH] extracted Drive file id:", id);
+  console.log("[QOH] candidate image URLs:", candidates);
+
+  let success = false;
+  for (const candidate of candidates) {
+    console.log("[QOH] Trying candidate:", candidate);
+    success = await tryLoad(candidate, 2);
+    if (success) break;
+  }
+
+  if (!success) {
+    console.warn("[QOH] All candidates failed. Falling back to board.jpg");
+    setFallback();
+  }
 }
 
     // Update text fields
@@ -237,6 +289,7 @@ if (img && s.board_image_url) {
 </body>
 
 </html>
+
 
 
 
